@@ -4,8 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,43 +20,40 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="created_at",nullable=false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @Column(nullable = false)
-    private Status status;
-
-    @Column(name="updated_at",nullable=false)
-    private LocalDateTime updatedAt;
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    @Column(name="order_number",nullable = false,unique = true)
+    @Column(name="order_number", nullable = false, unique = true)
     private String orderNumber;
 
-    @Column(name="payment_method",nullable = false)
-    private PaymentMethod paymentMethod;
+    @Column(name="status",nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
-    @Column(name="address",nullable = false,length = 1000)
+    @Column(name="created_at",nullable=false)
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @Column(name="updated_at", nullable=false)
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @Column(name="address",nullable=false, unique = true,length = 500)
     private String address;
 
+    @Column(name="postal_code",nullable=false,unique = true)
+    private String postalCode;
 
-    @Column(name="total_price",nullable = false)
-    private BigDecimal totalPrice;
+    @Column(name="country",nullable=false, unique = true, length = 100)
+    private String country;
 
-    @ManyToOne(fetch =FetchType.LAZY)
+    @Column(name="payment_method",nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;
 
-    @OneToMany(mappedBy="order")
+    @OneToMany(mappedBy = "order",
+    cascade = CascadeType.ALL,
+    orphanRemoval = true)
     private List<OrderItem> orderItems;
 }

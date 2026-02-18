@@ -12,12 +12,15 @@ import java.util.List;
 public class OrderResponseDTO {
 
     private Long id;
+    private String orderNumber;
+    private Status status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String orderNumber;
-    private PaymentMethod paymentMethod;
     private String address;
+    private String postalCode;
+    private String country;
+    private PaymentMethod paymentMethod;
     private BigDecimal totalPrice;
-    private Status status;
+    private UserSummaryDTO userSummaryDTO;
     private List<OrderItemResponseDTO> orderItems;
 }

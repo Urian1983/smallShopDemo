@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"cart_id}","product_id"}))
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartItem {
@@ -18,28 +20,22 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name="name",nullable = false)
+    private String name;
+
+    @Column(name="sku",nullable = false,unique =true)
+    private String sku;
+
     @Column(name="quantity",nullable = false)
     private int quantity;
 
-    @Column(name="price",nullable = false)
-    private BigDecimal price;
-
     @Column(name = "created_at", nullable = false)
+    @CreatedDate
     LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
     @Column(name="updated_at",nullable=false)
+    @LastModifiedDate
     private LocalDateTime updatedAt;
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
@@ -48,5 +44,4 @@ public class CartItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
-
 }

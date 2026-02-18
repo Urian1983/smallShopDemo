@@ -1,11 +1,13 @@
 package com.example.eCommerceDemo.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductRequestDTO {
 
     @NotBlank
@@ -15,9 +17,7 @@ public class ProductRequestDTO {
     private String sku;
 
     @NotBlank
-    @Length(min=1,max=1000)
-    private String description;
-
+    private String brand;
     @NotBlank
-    private String shortDescription;
+    private String category;
 }

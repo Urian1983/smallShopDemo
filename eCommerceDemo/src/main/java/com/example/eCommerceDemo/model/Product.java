@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,20 +21,12 @@ public class Product {
     private long id;
 
     @Column(nullable = false, name="created_at")
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+    @CreatedDate
     private LocalDateTime createdAt;
-    @Column(nullable = false, name="updated_at")
-    private LocalDateTime updatedAt;
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    @Column(nullable = false, name="updated_at")
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     @Column(unique = true,nullable = false, name="SKU")
     private String sku;
@@ -49,21 +43,16 @@ public class Product {
     @Column(name="shortDescription")
     private String shortDescription;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="brand_id")
-    private Brand brand;
-
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="category_id")
-    private Category category;
+    @Column(name="brand",nullable=false,length=100)
+    private String brand;
 
     @Column(name="stock")
     private int stock;
 
-    @Column(nullable = false,name="pvp")
-    private BigDecimal pvp;
-
     @Column(nullable = false,name="price")
     private BigDecimal price;
+
+    @Column(name="category",nullable=false,length=100)
+    private String category;
 
 }

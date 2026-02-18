@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,28 +20,25 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created_at:", nullable = false)
+    @Column(name = "created_at", nullable = false)
+    @CreatedDate
     LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
     @Column(name="updated_at",nullable=false)
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    @Column(name="total price",nullable=false)
+    private BigDecimal totalPrice;
 
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cart")
-    private List<OrderItem> orderItems;
+    @OneToMany(fetch = FetchType.LAZY,
+            mappedBy = "cart",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<CartItem> cartItems;
 
 }
