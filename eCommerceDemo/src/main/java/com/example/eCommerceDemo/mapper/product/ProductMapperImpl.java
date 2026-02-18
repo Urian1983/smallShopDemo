@@ -1,25 +1,56 @@
 package com.example.eCommerceDemo.mapper.product;
 
-import com.example.eCommerceDemo.dto.request.ProductRequestDTO;
+import com.example.eCommerceDemo.dto.request.ProductUpdateRequestDTO;
+import com.example.eCommerceDemo.dto.response.ProductResponseDTO;
 import com.example.eCommerceDemo.exceptions.NullObjectException;
 import com.example.eCommerceDemo.model.Product;
 import org.springframework.stereotype.Component;
+import java.time.LocalDateTime;
 
 @Component
 public class ProductMapperImpl implements ProductMapper{
     @Override
-    public ProductRequestDTO toDTO(Product product) {
+    public ProductResponseDTO toDTO(Product product) {
         if(product==null){
             throw new NullObjectException();
         }
-        return null;
+
+        ProductResponseDTO DTO = new ProductResponseDTO();
+
+        DTO.setId(product.getId());
+        DTO.setCreatedAt(product.getCreatedAt());
+        DTO.setUpdatedAt(product.getUpdatedAt());
+        DTO.setSku(product.getSku());
+        DTO.setSlug(product.getSlug());
+        DTO.setName(product.getName());
+        DTO.setBrand(product.getBrand());
+        DTO.setDescription(product.getDescription());
+        DTO.setShortDescription(product.getShortDescription());
+        DTO.setStock(product.getStock());
+        DTO.setPrice(product.getPrice());
+
+        return DTO;
+
     }
 
     @Override
-    public Product toEntity(ProductRequestDTO productRequestDTO) {
-        if(productRequestDTO==null){
+    public Product toEntity(ProductUpdateRequestDTO productUpdateRequestDTO) {
+        if(productUpdateRequestDTO==null){
             throw new NullObjectException();
         }
-        return null;
+        Product product = new Product();
+
+        product.setName(productUpdateRequestDTO.getName());
+        product.setSku(productUpdateRequestDTO.getSku());
+        product.setSlug(productUpdateRequestDTO.getSlug());
+        product.setDescription(productUpdateRequestDTO.getDescription());
+        product.setShortDescription(productUpdateRequestDTO.getShortDescription());
+        product.setBrand(productUpdateRequestDTO.getBrand());
+        product.setCategory(productUpdateRequestDTO.getCategory());
+        product.setCreatedAt(LocalDateTime.now());
+        product.setPrice(productUpdateRequestDTO.getPrice());
+        product.setStock(productUpdateRequestDTO.getStock());
+
+        return product;
     }
 }

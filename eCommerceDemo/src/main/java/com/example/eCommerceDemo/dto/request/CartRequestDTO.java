@@ -1,6 +1,7 @@
 package com.example.eCommerceDemo.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,8 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 public class CartRequestDTO {
 
-    @NotBlank
+    @NotNull
     private Long userId;
-    @NotBlank
+    @NotNull
     private List<CartItemRequestDTO> items;
 }

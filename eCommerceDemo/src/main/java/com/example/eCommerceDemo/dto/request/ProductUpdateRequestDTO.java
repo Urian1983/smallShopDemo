@@ -1,6 +1,7 @@
 package com.example.eCommerceDemo.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,9 +27,9 @@ public class ProductUpdateRequestDTO {
    @NotBlank
     private String shortDescription;
    @NotBlank
+   private String category;
+   @NotNull
     private int stock;
-   @NotBlank
+   @NotNull
     private BigDecimal price;
-
-
 }
