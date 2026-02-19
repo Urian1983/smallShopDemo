@@ -8,6 +8,7 @@ import com.example.eCommerceDemo.model.*;
 import com.example.eCommerceDemo.repository.CartRepository;
 import com.example.eCommerceDemo.repository.OrderRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;

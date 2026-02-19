@@ -7,11 +7,13 @@ import com.example.eCommerceDemo.mapper.product.ProductMapperImpl;
 import com.example.eCommerceDemo.model.Product;
 import com.example.eCommerceDemo.repository.ProductRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;

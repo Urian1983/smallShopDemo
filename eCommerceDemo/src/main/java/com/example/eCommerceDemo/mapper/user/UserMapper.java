@@ -5,7 +5,7 @@ import com.example.eCommerceDemo.dto.response.UserResponseDTO;
 import com.example.eCommerceDemo.model.User;
 import org.springframework.stereotype.Component;
 
-@Component
+
 public interface UserMapper {
 
     UserResponseDTO toDTO(User user);

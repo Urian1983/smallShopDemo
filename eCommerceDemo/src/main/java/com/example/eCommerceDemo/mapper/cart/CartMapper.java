@@ -5,7 +5,7 @@ import com.example.eCommerceDemo.dto.response.CartResponseDTO;
 import com.example.eCommerceDemo.model.Cart;
 import org.springframework.stereotype.Component;
 
-@Component
+
 public interface CartMapper {
 
     CartResponseDTO toDto(Cart cart);
