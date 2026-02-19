@@ -1,12 +1,14 @@
 package com.example.eCommerceDemo.service.cart;
 
+import com.example.eCommerceDemo.dto.request.CartItemRequestDTO;
+import com.example.eCommerceDemo.dto.request.CartRequestDTO;
 import com.example.eCommerceDemo.dto.response.CartResponseDTO;
 
 public interface CartService {
 
-    CartResponseDTO getCart();
-    CartResponseDTO addItem(Long cartId);
-    CartResponseDTO updateItem(Long cartId);
-    CartResponseDTO deleteItem(Long cartId);
-    CartResponseDTO clearCart(Long cartId);
+    CartResponseDTO getCart(Long userId);
+    CartResponseDTO addItem(CartItemRequestDTO cartItemRequestDTO, Long userId);
+    CartResponseDTO updateItem(CartItemRequestDTO cartItemRequestDTO, Long userId);
+    CartResponseDTO removeItem(Long cartItemId, Long userId);
+    CartResponseDTO clearCart(Long userId);
 }

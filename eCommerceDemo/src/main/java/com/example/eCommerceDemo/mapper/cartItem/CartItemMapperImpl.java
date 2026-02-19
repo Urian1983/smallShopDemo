@@ -14,7 +14,17 @@ public class CartItemMapperImpl implements CartItemMapper {
         if(cartItem == null){
             throw new NullObjectException();
         }
-        return null;
+
+        CartItemResponseDTO cartItemResponseDTO = new CartItemResponseDTO();
+        cartItemResponseDTO.setId(cartItem.getId());
+        cartItemResponseDTO.setQuantity(cartItem.getQuantity());
+        cartItemResponseDTO.setCreatedAt(cartItem.getCreatedAt());
+        cartItemResponseDTO.setUpdatedAt(cartItem.getUpdatedAt());
+        cartItemResponseDTO.setProductId(cartItem.getProduct().getId());
+        cartItemResponseDTO.setProductName(cartItem.getProduct().getName());
+        cartItemResponseDTO.setProductPrice(cartItem.getProduct().getPrice());
+
+        return cartItemResponseDTO;
     }
 
     @Override
@@ -22,6 +32,8 @@ public class CartItemMapperImpl implements CartItemMapper {
         if(dto == null){
             throw new NullObjectException();
         }
-        return null;
+        CartItem cartItem = new CartItem();
+        cartItem.setQuantity(dto.getQuantity());
+        return cartItem;
     }
 }

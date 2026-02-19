@@ -20,20 +20,14 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="name",nullable = false)
-    private String name;
-
-    @Column(name="sku",nullable = false,unique =true)
-    private String sku;
-
-    @Column(name="quantity",nullable = false)
+    @Column(name = "quantity", nullable = false)
     private int quantity;
 
     @Column(name = "created_at", nullable = false)
     @CreatedDate
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
-    @Column(name="updated_at",nullable=false)
+    @Column(name = "updated_at", nullable = false)
     @LastModifiedDate
     private LocalDateTime updatedAt;
 

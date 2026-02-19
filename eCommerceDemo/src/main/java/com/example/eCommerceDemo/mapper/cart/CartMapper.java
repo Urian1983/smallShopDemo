@@ -9,6 +9,5 @@ import org.springframework.stereotype.Component;
 public interface CartMapper {
 
     CartResponseDTO toDto(Cart cart);
-
     Cart toEntity(CartRequestDTO cartRequestDTO);
 }

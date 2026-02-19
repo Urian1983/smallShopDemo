@@ -6,6 +6,7 @@ import com.example.eCommerceDemo.exceptions.NotFoundException;
 import com.example.eCommerceDemo.mapper.product.ProductMapperImpl;
 import com.example.eCommerceDemo.model.Product;
 import com.example.eCommerceDemo.repository.ProductRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponseDTO createProduct(ProductUpdateRequestDTO productUpdateRequestDTO)
     {
         Product newProduct = productMapper.toEntity(new ProductUpdateRequestDTO());
@@ -32,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponseDTO updateProduct(ProductUpdateRequestDTO productUpdateRequestDTO, Long id) {
         Product productToUpdate = productRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
@@ -40,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
 
         productToUpdate.setName(tempProduct.getName());
         productToUpdate.setSku(tempProduct.getSku());
-        productToUpdate.setSlug(tempProduct.getSlug());
+        productToUpdate.setSlug(tempProduct.getName().toLowerCase().replace(" ", "-"));
         productToUpdate.setDescription(tempProduct.getDescription());
         productToUpdate.setShortDescription(tempProduct.getShortDescription());
         productToUpdate.setBrand(tempProduct.getBrand());
@@ -54,6 +57,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(Long id) {
         if(!productRepository.existsById(id))
         {

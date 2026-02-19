@@ -10,5 +10,5 @@ import org.springframework.stereotype.Component;
 public interface OrderItemMapper {
 
     OrderItemResponseDTO toDTO(OrderItem orderItem);
-    Order toEntity(OrderItemRequestDTO dto);
+    OrderItem toEntity(OrderItemRequestDTO dto);
 }

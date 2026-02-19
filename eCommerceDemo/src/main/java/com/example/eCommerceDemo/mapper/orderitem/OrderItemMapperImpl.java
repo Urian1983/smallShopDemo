@@ -3,7 +3,6 @@ package com.example.eCommerceDemo.mapper.orderitem;
 import com.example.eCommerceDemo.dto.request.OrderItemRequestDTO;
 import com.example.eCommerceDemo.dto.response.OrderItemResponseDTO;
 import com.example.eCommerceDemo.exceptions.NullObjectException;
-import com.example.eCommerceDemo.model.Order;
 import com.example.eCommerceDemo.model.OrderItem;
 import org.springframework.stereotype.Component;
 
@@ -14,14 +13,23 @@ public class OrderItemMapperImpl implements OrderItemMapper {
         if(orderItem==null){
             throw new NullObjectException();
         }
-        return null;
+        OrderItemResponseDTO dto = new OrderItemResponseDTO();
+        dto.setId(orderItem.getId());
+        dto.setProductId(orderItem.getProduct().getId());
+        dto.setQuantity(orderItem.getQuantity());
+        dto.setPrice(orderItem.getPrice());
+
+        return dto;
     }
 
     @Override
-    public Order toEntity(OrderItemRequestDTO dto) {
+    public OrderItem toEntity(OrderItemRequestDTO dto) {
         if(dto==null){
             throw new NullObjectException();
         }
-        return null;
+        OrderItem orderItem = new OrderItem();
+        orderItem.setQuantity(dto.getQuantity());
+
+        return orderItem;
     }
 }

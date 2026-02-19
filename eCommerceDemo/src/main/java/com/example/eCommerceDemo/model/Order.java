@@ -1,12 +1,14 @@
 package com.example.eCommerceDemo.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -47,6 +49,10 @@ public class Order {
     @Column(name="payment_method",nullable = false)
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
+
+    @Column(name="total_price",nullable = false)
+    @NotNull
+    private BigDecimal totalPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")

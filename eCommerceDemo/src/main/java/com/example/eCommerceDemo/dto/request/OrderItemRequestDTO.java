@@ -1,7 +1,6 @@
 package com.example.eCommerceDemo.dto.request;
 
-
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -9,8 +8,8 @@ import lombok.Data;
 public class OrderItemRequestDTO {
 
     @NotNull
-    private int name;
-    @NotNull
+    private Long productId;
+    @Min(1)
     private int quantity;
 }
 

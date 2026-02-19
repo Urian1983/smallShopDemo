@@ -5,9 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
 
 @Data
 @AllArgsConstructor
@@ -16,8 +15,6 @@ public class ProductUpdateRequestDTO {
 
    @NotBlank
     private String sku;
-   @NotBlank
-    private String slug;
    @NotBlank
     private String name;
    @NotBlank

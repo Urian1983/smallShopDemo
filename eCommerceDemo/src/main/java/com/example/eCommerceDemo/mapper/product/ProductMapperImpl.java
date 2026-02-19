@@ -22,6 +22,7 @@ public class ProductMapperImpl implements ProductMapper{
         DTO.setUpdatedAt(product.getUpdatedAt());
         DTO.setSku(product.getSku());
         DTO.setSlug(product.getSlug());
+        DTO.setCategory(product.getCategory());
         DTO.setName(product.getName());
         DTO.setBrand(product.getBrand());
         DTO.setDescription(product.getDescription());
@@ -42,7 +43,6 @@ public class ProductMapperImpl implements ProductMapper{
 
         product.setName(productUpdateRequestDTO.getName());
         product.setSku(productUpdateRequestDTO.getSku());
-        product.setSlug(productUpdateRequestDTO.getSlug());
         product.setDescription(productUpdateRequestDTO.getDescription());
         product.setShortDescription(productUpdateRequestDTO.getShortDescription());
         product.setBrand(productUpdateRequestDTO.getBrand());

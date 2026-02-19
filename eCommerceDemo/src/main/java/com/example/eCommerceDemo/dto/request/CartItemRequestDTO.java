@@ -6,13 +6,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartItemRequestDTO {
 
     @NotNull
-    private Long productId;
-    @NotNull
     private int quantity;
+    @NotNull
+    private Long productId;
+    @NotBlank
+    private String productName;
+    @NotNull
+    private BigDecimal productPrice;
 }

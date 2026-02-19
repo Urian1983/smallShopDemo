@@ -7,10 +7,11 @@ import java.time.LocalDateTime;
 
 @Data
 public class CartItemResponseDTO {
-
     private Long id;
     private int quantity;
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private BigDecimal price;
+    private Long productId;
+    private String productName;
+    private BigDecimal productPrice;
 }
