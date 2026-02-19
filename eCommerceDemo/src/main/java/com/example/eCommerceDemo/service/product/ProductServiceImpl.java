@@ -1,6 +1,6 @@
 package com.example.eCommerceDemo.service.product;
 
-import com.example.eCommerceDemo.dto.request.ProductUpdateRequestDTO;
+import com.example.eCommerceDemo.dto.request.ProductRequestDTO;
 import com.example.eCommerceDemo.dto.response.ProductResponseDTO;
 import com.example.eCommerceDemo.exceptions.NotFoundException;
 import com.example.eCommerceDemo.mapper.product.ProductMapperImpl;
@@ -24,9 +24,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public ProductResponseDTO createProduct(ProductUpdateRequestDTO productUpdateRequestDTO)
+    public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO)
     {
-        Product newProduct = productMapper.toEntity(new ProductUpdateRequestDTO());
+        Product newProduct = productMapper.toEntity(new ProductRequestDTO());
 
         productRepository.save(newProduct);
 
@@ -35,11 +35,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public ProductResponseDTO updateProduct(ProductUpdateRequestDTO productUpdateRequestDTO, Long id) {
+    public ProductResponseDTO updateProduct(ProductRequestDTO productRequestDTO, Long id) {
         Product productToUpdate = productRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
-        Product tempProduct = productMapper.toEntity(productUpdateRequestDTO);
+        Product tempProduct = productMapper.toEntity(productRequestDTO);
 
         productToUpdate.setName(tempProduct.getName());
         productToUpdate.setSku(tempProduct.getSku());

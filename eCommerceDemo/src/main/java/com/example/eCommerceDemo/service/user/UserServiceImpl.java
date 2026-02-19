@@ -5,17 +5,21 @@ import com.example.eCommerceDemo.dto.request.RegisterRequestDTO;
 import com.example.eCommerceDemo.dto.request.UserRequestDTO;
 import com.example.eCommerceDemo.dto.response.AuthResponseDTO;
 import com.example.eCommerceDemo.dto.response.UserResponseDTO;
+import com.example.eCommerceDemo.exceptions.NotFoundException;
 import com.example.eCommerceDemo.exceptions.NullObjectException;
+import com.example.eCommerceDemo.exceptions.UserAlreadyExistsException;
+import com.example.eCommerceDemo.mapper.user.UserMapper;
+import com.example.eCommerceDemo.model.Role;
 import com.example.eCommerceDemo.model.User;
 import com.example.eCommerceDemo.repository.UserRepository;
 import com.example.eCommerceDemo.security.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -24,12 +28,14 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -41,8 +47,8 @@ public class UserServiceImpl implements UserService {
                 )
         );
 
-        Optional<User> user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(NotFoundException::new);
 
         String token = jwtService.generateToken(user);
 
@@ -53,12 +59,38 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponseDTO register(RegisterRequestDTO registerRequestDTO) {
-        return null;
+        if (userRepository.findByEmail(registerRequestDTO.getEmail()).isPresent()) {
+            throw new UserAlreadyExistsException();
+        }
+
+        if (!registerRequestDTO.getPassword().equals(registerRequestDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("Passwords do not match");
+        }
+
+        User user = new User();
+        user.setEmail(registerRequestDTO.getEmail());
+        user.setName(registerRequestDTO.getUsername());
+        user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
+        user.setRoles(Set.of(Role.USER));
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        userRepository.save(user);
+
+        String token = jwtService.generateToken(user);
+
+        return AuthResponseDTO.builder()
+                .token(token)
+                .build();
     }
 
     @Override
-    public UserResponseDTO getUserById(Long userId) {
-        return null;
+    public UserResponseDTO getUserById(Long userId)
+    {
+        User user = userRepository.findById(userId)
+                .orElseThrow(NotFoundException::new);
+
+        return userMapper.toDTO(user);
     }
 
     @Override

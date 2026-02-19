@@ -1,6 +1,6 @@
 package com.example.eCommerceDemo.mapper.product;
 
-import com.example.eCommerceDemo.dto.request.ProductUpdateRequestDTO;
+import com.example.eCommerceDemo.dto.request.ProductRequestDTO;
 import com.example.eCommerceDemo.dto.response.ProductResponseDTO;
 import com.example.eCommerceDemo.exceptions.NullObjectException;
 import com.example.eCommerceDemo.model.Product;
@@ -35,21 +35,21 @@ public class ProductMapperImpl implements ProductMapper{
     }
 
     @Override
-    public Product toEntity(ProductUpdateRequestDTO productUpdateRequestDTO) {
-        if(productUpdateRequestDTO==null){
+    public Product toEntity(ProductRequestDTO productRequestDTO) {
+        if(productRequestDTO ==null){
             throw new NullObjectException();
         }
         Product product = new Product();
 
-        product.setName(productUpdateRequestDTO.getName());
-        product.setSku(productUpdateRequestDTO.getSku());
-        product.setDescription(productUpdateRequestDTO.getDescription());
-        product.setShortDescription(productUpdateRequestDTO.getShortDescription());
-        product.setBrand(productUpdateRequestDTO.getBrand());
-        product.setCategory(productUpdateRequestDTO.getCategory());
+        product.setName(productRequestDTO.getName());
+        product.setSku(productRequestDTO.getSku());
+        product.setDescription(productRequestDTO.getDescription());
+        product.setShortDescription(productRequestDTO.getShortDescription());
+        product.setBrand(productRequestDTO.getBrand());
+        product.setCategory(productRequestDTO.getCategory());
         product.setCreatedAt(LocalDateTime.now());
-        product.setPrice(productUpdateRequestDTO.getPrice());
-        product.setStock(productUpdateRequestDTO.getStock());
+        product.setPrice(productRequestDTO.getPrice());
+        product.setStock(productRequestDTO.getStock());
 
         return product;
     }

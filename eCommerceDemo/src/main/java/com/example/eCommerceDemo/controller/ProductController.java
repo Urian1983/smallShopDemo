@@ -1,9 +1,10 @@
 package com.example.eCommerceDemo.controller;
 
-import com.example.eCommerceDemo.dto.request.ProductUpdateRequestDTO;
+import com.example.eCommerceDemo.dto.request.ProductRequestDTO;
 import com.example.eCommerceDemo.dto.response.ProductResponseDTO;
 import com.example.eCommerceDemo.service.product.ProductService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,16 +23,16 @@ public class ProductController {
     @PostMapping("/api/product")
     ResponseEntity<ProductResponseDTO> create(@Valid
                                               @RequestBody
-                                              ProductUpdateRequestDTO productUpdateRequestDTO) {
+                                              ProductRequestDTO productRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(productService.createProduct(productUpdateRequestDTO));
+                .body(productService.createProduct(productRequestDTO));
     }
 
     @PutMapping("/{id}")
     ResponseEntity<ProductResponseDTO> update(@PathVariable Long id,
                                               @Valid
                                               @RequestBody
-                                              ProductUpdateRequestDTO
+                                              ProductRequestDTO
                                                       productRequestDTO) {
         ProductResponseDTO DTO =productService.updateProduct(productRequestDTO, id);
         return ResponseEntity.ok().body(DTO);

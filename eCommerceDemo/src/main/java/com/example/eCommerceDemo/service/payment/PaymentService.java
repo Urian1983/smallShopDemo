@@ -1,7 +1,9 @@
-/*package com.example.eCommerceDemo.service;
+package com.example.eCommerceDemo.service.payment;
+
+import com.example.eCommerceDemo.dto.request.PaymentRequestDTO;
+import com.example.eCommerceDemo.dto.response.PaymentResponseDTO;
 
 public interface PaymentService {
-
-    PaymentResponseDTO payOrder(PaymentRequestDTO);
-    PaymentResponseDTO getPaymentByOrder(Long orderId);
-}*/
+    PaymentResponseDTO processPayment(PaymentRequestDTO paymentRequestDTO, Long userId);
+    PaymentResponseDTO getPaymentByOrderId(Long orderId);
+}

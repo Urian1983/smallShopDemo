@@ -1,40 +1,35 @@
 package com.example.eCommerceDemo.dto.request;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductRequestDTO {
 
-    @NotBlank
-    private String name;
-
-    @NotBlank
+   @NotBlank
     private String sku;
-
-    @NotBlank
+   @NotBlank
+    private String name;
+   @NotBlank
+   private String brand;
+   @NotBlank
     private String description;
-
-    @NotBlank
+   @NotBlank
     private String shortDescription;
-    @NotBlank
-    private String brand;
-    @NotBlank
-    private String category;
-
-    @NotNull
-    @Positive
+   @NotBlank
+   private String category;
+   @NotNull
+   @Min(value = 0, message = "Stock cannot be negative")
+    private int stock;
+   @NotNull
+   @Min(value = 0, message = "Price cannot be negative")
     private BigDecimal price;
-
-    @NotNull
-    @Positive
-    private int Stock;
 }
