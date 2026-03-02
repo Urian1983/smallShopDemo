@@ -1,5 +1,6 @@
 package com.example.eCommerceDemo.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -10,20 +11,25 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "User registration details")
 public class RegisterRequestDTO {
 
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50)
+    @Schema(description = "Unique username for the account", example = "johndoe88", minLength = 3, maxLength = 50)
     private String username;
 
     @NotBlank(message = "Email is required")
     @Email(message="Invalid email format")
+    @Schema(description = "Primary email address", example = "john.doe@example.com", format = "email")
     private String email;
 
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
+    @Schema(description = "Secure password for the account", example = "StrongPass123!", minLength = 6)
     private String password;
 
     @NotBlank(message = "Confirm password is required")
+    @Schema(description = "Must match the password field", example = "StrongPass123!")
     private String confirmPassword;
 }
