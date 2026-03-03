@@ -1,0 +1,35 @@
+services:
+  mysqldb:
+    image: mysql:9.0
+    container_name: mysql_ecommerce
+    restart: always
+    environment:
+      - MYSQL_DATABASE=mydatabase
+      - MYSQL_USER=myuser
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app-ecommerce:
+    build: .
+    container_name: springboot_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysqldb:
+        condition: service_healthy  # Espera a que MySQL esté realmente listo
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/mydatabase?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=myuser
+      - SPRING_DATASOURCE_PASSWORD=secret
+
+volumes:
+  mysql_data:
