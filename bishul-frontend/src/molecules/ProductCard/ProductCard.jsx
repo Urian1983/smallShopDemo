@@ -1,0 +1,70 @@
+import Badge from '../../atoms/Badge'
+import Button from '../../atoms/Button'
+import styles from './ProductCard.module.css'
+
+/**
+ * Molecule: ProductCard
+ * Muestra un producto con imagen, nombre, categoría, precio y botón de añadir al carrito
+ *
+ * @param {{ id, name, imageUrl, category, price, stock, shortDescription }} product
+ * @param {(product) => void} onAddToCart
+ * @param {() => void} onClick  — navega al detalle
+ */
+const ProductCard = ({ product, onAddToCart, onClick }) => {
+  const { name, imageUrl, category, price, stock, shortDescription } = product
+
+  const outOfStock = stock === 0
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation()
+    if (!outOfStock && onAddToCart) onAddToCart(product)
+  }
+
+  return (
+    <article className={styles.card} onClick={onClick} role="button" tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onClick?.()}
+      aria-label={`Ver detalle de ${name}`}
+    >
+      <div className={styles.imageWrapper}>
+        <img
+          src={imageUrl}
+          alt={name}
+          className={styles.image}
+          loading="lazy"
+          onError={(e) => { e.target.src = '/placeholder-food.jpg' }}
+        />
+        {outOfStock && (
+          <div className={styles.outOfStockOverlay}>
+            <span>Agotado</span>
+          </div>
+        )}
+        <div className={styles.badgeWrapper}>
+          <Badge variant="category" size="sm">{category}</Badge>
+        </div>
+      </div>
+
+      <div className={styles.body}>
+        <h3 className={styles.name}>{name}</h3>
+        {shortDescription && (
+          <p className={styles.description}>{shortDescription}</p>
+        )}
+        <div className={styles.footer}>
+          <span className={styles.price}>
+            {Number(price).toFixed(2)} €
+          </span>
+          <Button
+            variant="primary"
+            size="sm"
+            disabled={outOfStock}
+            onClick={handleAddToCart}
+            aria-label={`Añadir ${name} al carrito`}
+          >
+            + Carrito
+          </Button>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+export default ProductCard
