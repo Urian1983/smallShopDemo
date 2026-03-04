@@ -6,7 +6,7 @@ import styles from './ProductsPage.module.css'
 
 /**
  * Page: ProductsPage
- * Catálogo completo de productos con filtros y búsqueda.
+ * Carta completa del restaurante con filtros y búsqueda.
  */
 const ProductsPage = () => {
   const navigate = useNavigate()
@@ -28,10 +28,10 @@ const ProductsPage = () => {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Nuestro menú</h1>
+        <h1 className={styles.title}>Nuestra carta</h1>
         <p className={styles.subtitle}>
-          Descubre todos nuestros platos mediterráneos, desde arroces levantinos
-          hasta dulces de Oriente Medio
+          Platos mediterráneos elaborados cada día con producto fresco —
+          arroces levantinos, carnes a la brasa, pescados del día y postres de autor
         </p>
       </div>
 

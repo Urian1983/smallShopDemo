@@ -4,7 +4,7 @@ import styles from './ProductCard.module.css'
 
 /**
  * Molecule: ProductCard
- * Muestra un producto con imagen, nombre, categoría, precio y botón de añadir al carrito
+ * Muestra un plato de la carta con imagen, nombre, categoría, precio y botón de pedir
  *
  * @param {{ id, name, imageUrl, category, price, stock, shortDescription }} product
  * @param {(product) => void} onAddToCart
@@ -38,7 +38,7 @@ const ProductCard = ({ product, onAddToCart, onClick }) => {
         />
         {outOfStock && (
           <div className={styles.outOfStockOverlay}>
-            <span>Agotado</span>
+            <span>No disponible</span>
           </div>
         )}
         <div className={styles.badgeWrapper}>
@@ -60,9 +60,9 @@ const ProductCard = ({ product, onAddToCart, onClick }) => {
             size="sm"
             disabled={outOfStock}
             onClick={handleAddToCart}
-            aria-label={`Añadir ${name} al carrito`}
+            aria-label={`Pedir ${name}`}
           >
-            + Carrito
+            Pedir
           </Button>
         </div>
       </div>

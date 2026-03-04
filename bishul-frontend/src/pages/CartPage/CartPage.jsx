@@ -8,8 +8,7 @@ import styles from './CartPage.module.css'
 
 const PAYMENT_METHODS = [
   { value: 'CREDIT_CARD', label: '💳 Tarjeta de crédito' },
-  { value: 'PAYPAL', label: '🅿️ PayPal' },
-  { value: 'BANK_TRANSFER', label: '🏦 Transferencia bancaria' },
+  { value: 'CASH',        label: '💵 Efectivo' },
 ]
 
 const CartPage = () => {
@@ -20,7 +19,7 @@ const CartPage = () => {
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [checkoutError, setCheckoutError] = useState('')
-  const [form, setForm] = useState({ address: '', postalCode: '', country: '', paymentMethod: '' })
+  const [form, setForm] = useState({ paymentMethod: '' })
   const [formErrors, setFormErrors] = useState({})
 
   const items = cart?.cartItems ?? []
@@ -61,9 +60,6 @@ const CartPage = () => {
 
   const validateForm = () => {
     const errors = {}
-    if (!form.address.trim()) errors.address = 'La dirección es obligatoria'
-    if (!form.postalCode.trim()) errors.postalCode = 'El código postal es obligatorio'
-    if (!form.country.trim()) errors.country = 'El país es obligatorio'
     if (!form.paymentMethod) errors.paymentMethod = 'Selecciona un método de pago'
     return errors
   }
@@ -80,14 +76,11 @@ const CartPage = () => {
     try {
       await handleCreateOrder({
         orderNumber: `ORD-${Date.now()}`,
-        address: form.address,
-        postalCode: form.postalCode,
-        country: form.country,
         paymentMethod: form.paymentMethod,
       })
       navigate('/orders')
     } catch (err) {
-      setCheckoutError(err.response?.data?.message || 'Error al crear el pedido')
+      setCheckoutError(err.response?.data?.message || 'Error al confirmar la comanda')
     } finally {
       setCheckoutLoading(false)
     }
@@ -104,26 +97,26 @@ const CartPage = () => {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Tu carrito</h1>
+        <h1 className={styles.title}>Tu comanda</h1>
         {items.length > 0 && (
           <button className={styles.clearBtn} onClick={handleClear}>
-            Vaciar carrito
+            Vaciar comanda
           </button>
         )}
       </div>
 
       {items.length === 0 ? (
         <div className={styles.empty}>
-          <span className={styles.emptyIcon}>🛒</span>
-          <p className={styles.emptyText}>Tu carrito está vacío</p>
+          <span className={styles.emptyIcon}>🍽️</span>
+          <p className={styles.emptyText}>Tu comanda está vacía</p>
           <Button variant="primary" onClick={() => navigate('/products')}>
-            Ver el menú
+            Ver la carta
           </Button>
         </div>
       ) : (
         <div className={styles.layout}>
 
-          {/* Lista de ítems */}
+          {/* Lista de platos */}
           <div className={styles.itemsList}>
             {items.map((item) => (
               <div key={item.id} className={styles.item}>
@@ -175,12 +168,8 @@ const CartPage = () => {
             <div className={styles.summaryCard}>
               <h2 className={styles.summaryTitle}>Resumen</h2>
               <div className={styles.summaryRow}>
-                <span>Subtotal ({items.length} {items.length === 1 ? 'producto' : 'productos'})</span>
+                <span>{items.length} {items.length === 1 ? 'plato' : 'platos'}</span>
                 <span>{total.toFixed(2)} €</span>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>Envío</span>
-                <span className={styles.freeShipping}>Gratis</span>
               </div>
               <div className={styles.summaryTotal}>
                 <span>Total</span>
@@ -194,54 +183,17 @@ const CartPage = () => {
                   fullWidth
                   onClick={() => setCheckoutOpen(true)}
                 >
-                  Finalizar pedido
+                  Confirmar comanda
                 </Button>
               ) : (
                 <form className={styles.checkoutForm} onSubmit={handleCheckout} noValidate>
-                  <h3 className={styles.checkoutTitle}>Datos de envío</h3>
+                  <h3 className={styles.checkoutTitle}>Método de pago</h3>
 
                   {checkoutError && (
                     <p className={styles.checkoutError}>⚠️ {checkoutError}</p>
                   )}
 
                   <div className={styles.field}>
-                    <label className={styles.label}>Dirección *</label>
-                    <input
-                      className={[styles.input, formErrors.address ? styles.inputError : ''].join(' ')}
-                      placeholder="Calle Mayor 1, Apto 2B"
-                      value={form.address}
-                      onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))}
-                    />
-                    {formErrors.address && <span className={styles.fieldError}>{formErrors.address}</span>}
-                  </div>
-
-                  <div className={styles.fieldRow}>
-                    <div className={styles.field}>
-                      <label className={styles.label}>Código postal *</label>
-                      <input
-                        className={[styles.input, formErrors.postalCode ? styles.inputError : ''].join(' ')}
-                        placeholder="28001"
-                        value={form.postalCode}
-                        onChange={(e) => setForm((p) => ({ ...p, postalCode: e.target.value }))}
-                      />
-                      {formErrors.postalCode && <span className={styles.fieldError}>{formErrors.postalCode}</span>}
-                    </div>
-
-                    <div className={styles.field}>
-                      <label className={styles.label}>País *</label>
-                      <input
-                        className={[styles.input, formErrors.country ? styles.inputError : ''].join(' ')}
-                        placeholder="España"
-                        value={form.country}
-                        onChange={(e) => setForm((p) => ({ ...p, country: e.target.value }))}
-                      />
-                      {formErrors.country && <span className={styles.fieldError}>{formErrors.country}</span>}
-                    </div>
-                  </div>
-
-                  {/* Selector de método de pago */}
-                  <div className={styles.field}>
-                    <label className={styles.label}>Método de pago *</label>
                     <div className={styles.paymentMethods}>
                       {PAYMENT_METHODS.map((method) => (
                         <button
@@ -264,7 +216,7 @@ const CartPage = () => {
 
                   <div className={styles.checkoutActions}>
                     <Button type="submit" variant="primary" size="lg" fullWidth loading={checkoutLoading}>
-                      Confirmar pedido
+                      Enviar a cocina
                     </Button>
                     <Button
                       type="button"

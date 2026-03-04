@@ -31,9 +31,6 @@ public class OrderMapperImpl implements OrderMapper{
         dto.setStatus(order.getStatus());
         dto.setCreatedAt(order.getCreatedAt());
         dto.setUpdatedAt(order.getUpdatedAt());
-        dto.setAddress(order.getAddress());
-        dto.setPostalCode(order.getPostalCode());
-        dto.setCountry(order.getCountry());
         dto.setPaymentMethod(order.getPaymentMethod());
         dto.setTotalPrice(order.getTotalPrice());
 
@@ -62,9 +59,6 @@ public class OrderMapperImpl implements OrderMapper{
         Order order = new Order();
 
         order.setOrderNumber(orderRequestDTO.getOrderNumber());
-        order.setAddress(orderRequestDTO.getAddress());
-        order.setPostalCode(orderRequestDTO.getPostalCode());
-        order.setCountry(orderRequestDTO.getCountry());
 
        return order;
     }

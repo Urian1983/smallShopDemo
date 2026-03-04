@@ -29,15 +29,6 @@ public class OrderResponseDTO {
     @Schema(description = "Timestamp of the last status update")
     private LocalDateTime updatedAt;
 
-    @Schema(description = "Shipping address", example = "123 Main St")
-    private String address;
-
-    @Schema(description = "Shipping postal code", example = "28001")
-    private String postalCode;
-
-    @Schema(description = "Shipping destination country", example = "Spain")
-    private String country;
-
     @Schema(description = "Payment method selected for the order")
     private PaymentMethod paymentMethod;
 

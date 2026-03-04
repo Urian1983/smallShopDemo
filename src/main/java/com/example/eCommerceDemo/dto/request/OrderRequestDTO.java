@@ -22,16 +22,4 @@ public class OrderRequestDTO {
     @Schema(description = "Payment method", example = "CREDIT_CARD")
     private String paymentMethod;
 
-    @NotBlank
-    @Length(min=1, max=500)
-    @Schema(description = "Full shipping address", example = "123 Maple Street, Apt 4B", maxLength = 500)
-    private String address;
-
-    @NotBlank
-    @Schema(description = "Area or postal code", example = "28001")
-    private String postalCode;
-
-    @NotBlank
-    @Schema(description = "Destination country", example = "Spain")
-    private String country;
 }

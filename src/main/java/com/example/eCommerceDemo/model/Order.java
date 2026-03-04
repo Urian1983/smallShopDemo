@@ -38,15 +38,6 @@ public class Order {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(name="address",nullable=false,length = 500)
-    private String address;
-
-    @Column(name="postal_code",nullable=false)
-    private String postalCode;
-
-    @Column(name="country",nullable=false, length = 100)
-    private String country;
-
     @Column(name="payment_method",nullable = false)
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;

@@ -227,11 +227,6 @@
   color: var(--color-text-secondary);
 }
 
-.freeShipping {
-  color: var(--color-success);
-  font-weight: var(--fw-bold);
-}
-
 .summaryTotal {
   display: flex;
   justify-content: space-between;
@@ -271,42 +266,6 @@
   gap: var(--space-1);
 }
 
-.fieldRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
-}
-
-.label {
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-bold);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
-
-.input {
-  width: 100%;
-  padding: var(--space-3) var(--space-3);
-  font-family: var(--font-body);
-  font-size: var(--fs-sm);
-  color: var(--color-text-primary);
-  background-color: var(--color-cream);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  outline: none;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.input:focus {
-  border-color: var(--color-terracotta);
-  box-shadow: 0 0 0 3px rgba(193, 68, 14, 0.12);
-}
-
-.inputError {
-  border-color: var(--color-error);
-}
-
 .fieldError {
   font-size: var(--fs-xs);
   color: var(--color-error);
@@ -316,29 +275,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  .summaryCard {
-    position: static;
-  }
-}
-
-@media (max-width: 600px) {
-  .item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .itemControls {
-    width: 100%;
-    justify-content: space-between;
-  }
 }
 
 /* Payment method selector */
@@ -372,4 +308,27 @@
   background-color: rgba(193, 68, 14, 0.06);
   color: var(--color-terracotta);
   font-weight: var(--fw-bold);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryCard {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .itemControls {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
