@@ -11,11 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ public class CartController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartResponseDTO.class)))
     @GetMapping
     public ResponseEntity<CartResponseDTO> getCart(@AuthenticationPrincipal User user) {
+        log.info("REST request to get cart for user ID: {}", user.getId());
         return ResponseEntity.ok(cartService.getCart(user.getId()));
     }
 
@@ -38,6 +41,8 @@ public class CartController {
     @PostMapping("/items")
     public ResponseEntity<CartResponseDTO> addItem(@AuthenticationPrincipal User user,
                                                    @Valid @RequestBody CartItemRequestDTO cartItemRequestDTO) {
+        log.info("REST request to add product ID: {} to cart for user ID: {}",
+                cartItemRequestDTO.getProductId(), user.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(cartService.addItem(cartItemRequestDTO, user.getId()));
     }
@@ -48,6 +53,8 @@ public class CartController {
     @PutMapping("/items")
     public ResponseEntity<CartResponseDTO> updateItem(@AuthenticationPrincipal User user,
                                                       @Valid @RequestBody CartItemRequestDTO cartItemRequestDTO) {
+        log.info("REST request to update quantity for product ID: {} in cart for user ID: {}",
+                cartItemRequestDTO.getProductId(), user.getId());
         return ResponseEntity.ok(cartService.updateItem(cartItemRequestDTO, user.getId()));
     }
 
@@ -57,6 +64,7 @@ public class CartController {
     @DeleteMapping("/items/{cartItemId}")
     public ResponseEntity<CartResponseDTO> removeItem(@AuthenticationPrincipal User user,
                                                       @PathVariable Long cartItemId) {
+        log.info("REST request to remove cart item ID: {} for user ID: {}", cartItemId, user.getId());
         return ResponseEntity.ok(cartService.removeItem(cartItemId, user.getId()));
     }
 
@@ -65,6 +73,7 @@ public class CartController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartResponseDTO.class)))
     @DeleteMapping
     public ResponseEntity<CartResponseDTO> clearCart(@AuthenticationPrincipal User user) {
+        log.info("REST request to clear cart for user ID: {}", user.getId());
         return ResponseEntity.ok(cartService.clearCart(user.getId()));
     }
 }

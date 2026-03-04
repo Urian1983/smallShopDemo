@@ -10,11 +10,14 @@ import com.example.eCommerceDemo.model.CartItem;
 import com.example.eCommerceDemo.model.Product;
 import com.example.eCommerceDemo.repository.CartRepository;
 import com.example.eCommerceDemo.repository.ProductRepository;
-import org.springframework.security.access.prepost.PreAuthorize;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@Slf4j
+@Transactional
 @Service
 public class CartServiceImpl implements CartService {
 
@@ -31,22 +34,31 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public CartResponseDTO getCart(Long userId) {
+        log.info("Fetching cart for user ID: {}", userId);
         Cart cartToGet = cartRepository.findByUserId(userId)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> {
+                    log.error("Cart not found for user ID: {}", userId);
+                    return new NotFoundException();
+                });
 
         return cartMapper.toDto(cartToGet);
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public CartResponseDTO addItem(CartItemRequestDTO cartItemRequestDTO, Long userId) {
+        log.info("Adding product ID: {} to cart for user ID: {}", cartItemRequestDTO.getProductId(), userId);
         Cart cartToGet = cartRepository.findByUserId(userId)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> {
+                    log.error("Cart not found for user ID: {}", userId);
+                    return new NotFoundException();
+                });
 
         Product product = productRepository.findById(cartItemRequestDTO.getProductId())
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> {
+                    log.error("Product not found with ID: {}", cartItemRequestDTO.getProductId());
+                    return new NotFoundException();
+                });
 
         CartItem cartItem = cartItemMapper.toEntity(cartItemRequestDTO);
         cartItem.setCart(cartToGet);
@@ -55,56 +67,76 @@ public class CartServiceImpl implements CartService {
         cartItem.setProduct(product);
 
         cartRepository.save(cartToGet);
+        log.info("Product successfully added to cart for user ID: {}", userId);
         return cartMapper.toDto(cartToGet);
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public CartResponseDTO updateItem(CartItemRequestDTO cartItemRequestDTO, Long userId) {
+        log.info("Updating item quantity for product ID: {} in user ID: {} cart", cartItemRequestDTO.getProductId(), userId);
         Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> {
+                    log.error("Cart not found for user ID: {}", userId);
+                    return new NotFoundException();
+                });
 
         CartItem itemToUpdate = cart.getCartItems().stream()
                 .filter(item -> item.getProduct().getId().equals(cartItemRequestDTO.getProductId()))
                 .findFirst()
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> {
+                    log.error("Item with product ID: {} not found in cart", cartItemRequestDTO.getProductId());
+                    return new NotFoundException();
+                });
 
         itemToUpdate.setQuantity(cartItemRequestDTO.getQuantity());
         itemToUpdate.setUpdatedAt(LocalDateTime.now());
         cart.setUpdatedAt(LocalDateTime.now());
         cartRepository.save(cart);
 
+        log.info("Cart item updated successfully");
         return cartMapper.toDto(cart);
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public CartResponseDTO removeItem(Long cartItemId, Long userId) {
+        log.info("Removing cart item ID: {} from user ID: {} cart", cartItemId, userId);
         Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> {
+                    log.error("Cart not found for user ID: {}", userId);
+                    return new NotFoundException();
+                });
 
         CartItem itemToRemove = cart.getCartItems().stream()
                 .filter(item -> item.getId().equals(cartItemId))
                 .findFirst()
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> {
+                    log.error("Cart item ID: {} not found in cart", cartItemId);
+                    return new NotFoundException();
+                });
 
         cart.getCartItems().remove(itemToRemove);
         cart.setUpdatedAt(LocalDateTime.now());
         cartRepository.save(cart);
 
+        log.info("Item removed successfully from cart");
         return cartMapper.toDto(cart);
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public CartResponseDTO clearCart(Long userId) {
+        log.info("Clearing all items from cart for user ID: {}", userId);
         Cart cartToClear = cartRepository.findByUserId(userId)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> {
+                    log.error("Cart not found for user ID: {}", userId);
+                    return new NotFoundException();
+                });
 
         cartToClear.getCartItems().clear();
         cartToClear.setUpdatedAt(LocalDateTime.now());
         cartRepository.save(cartToClear);
 
+        log.info("Cart cleared successfully for user ID: {}", userId);
         return cartMapper.toDto(cartToClear);
     }
 }
+

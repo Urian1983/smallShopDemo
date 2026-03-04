@@ -71,7 +71,10 @@ const ProductDetailPage = () => {
             src={product.imageUrl}
             alt={product.name}
             className={styles.image}
-            onError={(e) => { e.target.src = '/placeholder-food.jpg' }}
+            onError={(e) => {
+              e.target.onerror = null
+              e.target.src = `https://placehold.co/800x600/F5EDD6/C1440E?text=${encodeURIComponent(product.name)}`
+            }}
           />
           {outOfStock && (
             <div className={styles.outOfStockOverlay}>

@@ -340,3 +340,36 @@
     justify-content: space-between;
   }
 }
+
+/* Payment method selector */
+.paymentMethods {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.paymentOption {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.paymentOption:hover {
+  border-color: var(--color-terracotta);
+  color: var(--color-text-primary);
+}
+
+.paymentOptionSelected {
+  border-color: var(--color-terracotta);
+  background-color: rgba(193, 68, 14, 0.06);
+  color: var(--color-terracotta);
+  font-weight: var(--fw-bold);
+}

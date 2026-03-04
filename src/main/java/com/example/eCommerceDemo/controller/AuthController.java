@@ -12,12 +12,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -38,7 +40,10 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
-        return ResponseEntity.ok(userService.login(request));
+        log.info("REST request to login user: {}", request.getEmail());
+        AuthResponseDTO response = userService.login(request);
+        log.info("User {} logged in successfully", request.getEmail());
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -53,6 +58,9 @@ public class AuthController {
     })
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
-        return ResponseEntity.ok(userService.register(request));
+        log.info("REST request to register new user with email: {}", request.getEmail());
+        AuthResponseDTO response = userService.register(request);
+        log.info("User with email: {} registered successfully", request.getEmail());
+        return ResponseEntity.ok(response);
     }
 }

@@ -11,12 +11,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
@@ -35,8 +37,11 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<PaymentResponseDTO> processPayment(@AuthenticationPrincipal User user,
                                                              @RequestBody PaymentRequestDTO paymentRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(paymentService.processPayment(paymentRequestDTO, user.getId()));
+        log.info("REST request to process payment for Order ID: {} by User ID: {}",
+                paymentRequestDTO.getOrderId(), user.getId());
+        PaymentResponseDTO response = paymentService.processPayment(paymentRequestDTO, user.getId());
+        log.info("Payment processed successfully for Order ID: {}", paymentRequestDTO.getOrderId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(
@@ -50,6 +55,7 @@ public class PaymentController {
     })
     @GetMapping("/order/{orderId}")
     public ResponseEntity<PaymentResponseDTO> getPaymentByOrderId(@PathVariable Long orderId) {
+        log.info("REST request to fetch payment details for Order ID: {}", orderId);
         return ResponseEntity.ok(paymentService.getPaymentByOrderId(orderId));
     }
 }

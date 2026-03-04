@@ -12,15 +12,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/order")
 @RequiredArgsConstructor
@@ -39,8 +40,10 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderResponseDTO> createOrder(@AuthenticationPrincipal User user,
                                                         @RequestBody OrderRequestDTO orderRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.createOrder(user.getId(), orderRequestDTO));
+        log.info("REST request to create order for user ID: {}", user.getId());
+        OrderResponseDTO response = orderService.createOrder(user.getId(), orderRequestDTO);
+        log.info("Order created successfully with ID: {}", response.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "Get order by ID")
@@ -51,6 +54,7 @@ public class OrderController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable Long id) {
+        log.info("REST request to get order details for ID: {}", id);
         return ResponseEntity.ok(orderService.getOrderById(id));
     }
 
@@ -59,6 +63,7 @@ public class OrderController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderResponseDTO.class)))
     @GetMapping("/my-orders")
     public ResponseEntity<List<OrderResponseDTO>> getMyOrders(@AuthenticationPrincipal User user) {
+        log.info("REST request to get order history for user ID: {}", user.getId());
         return ResponseEntity.ok(orderService.getMyOrders(user.getId()));
     }
 
@@ -66,8 +71,8 @@ public class OrderController {
     @ApiResponse(responseCode = "200", description = "All orders retrieved successfully (Admin only)",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderResponseDTO.class)))
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OrderResponseDTO>> getAllOrders() {
+        log.info("REST request to get all orders (Admin access)");
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
@@ -77,6 +82,7 @@ public class OrderController {
     @PutMapping("/{id}/status")
     public ResponseEntity<OrderResponseDTO> updateStatus(@PathVariable Long id,
                                                          @RequestParam Status status) {
+        log.info("REST request to update status of order ID: {} to {}", id, status);
         return ResponseEntity.ok(orderService.updateStatus(id, status));
     }
 
@@ -85,6 +91,7 @@ public class OrderController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderResponseDTO.class)))
     @PutMapping("/{id}/cancel")
     public ResponseEntity<OrderResponseDTO> cancelOrder(@PathVariable Long id) {
+        log.info("REST request to cancel order ID: {}", id);
         return ResponseEntity.ok(orderService.cancelOrder(id));
     }
 }

@@ -31,7 +31,7 @@ public class CorsConfig {
 
 
         config.setExposedHeaders(List.of("Authorization"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(false);
 
         config.setMaxAge(3600L);
 

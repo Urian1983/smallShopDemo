@@ -19,6 +19,10 @@ public class OrderRequestDTO {
     private String orderNumber;
 
     @NotBlank
+    @Schema(description = "Payment method", example = "CREDIT_CARD")
+    private String paymentMethod;
+
+    @NotBlank
     @Length(min=1, max=500)
     @Schema(description = "Full shipping address", example = "123 Maple Street, Apt 4B", maxLength = 500)
     private String address;

@@ -6,11 +6,12 @@ import Button from '../../atoms/Button'
 import Spinner from '../../atoms/Spinner'
 import styles from './CartPage.module.css'
 
-/**
- * Page: CartPage
- * Muestra los ítems del carrito con controles de cantidad,
- * resumen de precio y formulario de checkout.
- */
+const PAYMENT_METHODS = [
+  { value: 'CREDIT_CARD', label: '💳 Tarjeta de crédito' },
+  { value: 'PAYPAL', label: '🅿️ PayPal' },
+  { value: 'BANK_TRANSFER', label: '🏦 Transferencia bancaria' },
+]
+
 const CartPage = () => {
   const navigate = useNavigate()
   const { cart, loading, handleUpdateItem, handleRemoveItem, handleClearCart } = useCartContext()
@@ -19,7 +20,7 @@ const CartPage = () => {
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [checkoutError, setCheckoutError] = useState('')
-  const [form, setForm] = useState({ address: '', postalCode: '', country: '' })
+  const [form, setForm] = useState({ address: '', postalCode: '', country: '', paymentMethod: '' })
   const [formErrors, setFormErrors] = useState({})
 
   const items = cart?.cartItems ?? []
@@ -63,6 +64,7 @@ const CartPage = () => {
     if (!form.address.trim()) errors.address = 'La dirección es obligatoria'
     if (!form.postalCode.trim()) errors.postalCode = 'El código postal es obligatorio'
     if (!form.country.trim()) errors.country = 'El país es obligatorio'
+    if (!form.paymentMethod) errors.paymentMethod = 'Selecciona un método de pago'
     return errors
   }
 
@@ -76,13 +78,14 @@ const CartPage = () => {
     }
     setCheckoutLoading(true)
     try {
-      const order = await handleCreateOrder({
+      await handleCreateOrder({
         orderNumber: `ORD-${Date.now()}`,
         address: form.address,
         postalCode: form.postalCode,
         country: form.country,
+        paymentMethod: form.paymentMethod,
       })
-      navigate(`/orders`)
+      navigate('/orders')
     } catch (err) {
       setCheckoutError(err.response?.data?.message || 'Error al crear el pedido')
     } finally {
@@ -234,6 +237,29 @@ const CartPage = () => {
                       />
                       {formErrors.country && <span className={styles.fieldError}>{formErrors.country}</span>}
                     </div>
+                  </div>
+
+                  {/* Selector de método de pago */}
+                  <div className={styles.field}>
+                    <label className={styles.label}>Método de pago *</label>
+                    <div className={styles.paymentMethods}>
+                      {PAYMENT_METHODS.map((method) => (
+                        <button
+                          key={method.value}
+                          type="button"
+                          className={[
+                            styles.paymentOption,
+                            form.paymentMethod === method.value ? styles.paymentOptionSelected : ''
+                          ].join(' ')}
+                          onClick={() => setForm((p) => ({ ...p, paymentMethod: method.value }))}
+                        >
+                          {method.label}
+                        </button>
+                      ))}
+                    </div>
+                    {formErrors.paymentMethod && (
+                      <span className={styles.fieldError}>{formErrors.paymentMethod}</span>
+                    )}
                   </div>
 
                   <div className={styles.checkoutActions}>

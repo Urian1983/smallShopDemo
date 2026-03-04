@@ -31,7 +31,10 @@ const ProductCard = ({ product, onAddToCart, onClick }) => {
           alt={name}
           className={styles.image}
           loading="lazy"
-          onError={(e) => { e.target.src = '/placeholder-food.jpg' }}
+          onError={(e) => {
+              e.target.onerror = null
+              e.target.src = `https://placehold.co/400x300/F5EDD6/C1440E?text=${encodeURIComponent(name)}`
+            }}
         />
         {outOfStock && (
           <div className={styles.outOfStockOverlay}>

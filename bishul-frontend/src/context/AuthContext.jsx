@@ -16,31 +16,31 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(async (email, password) => {
     const data = await loginService(email, password)
-    setToken(data.token)
-    setUser(data.user ?? null)
+    // Guardar en localStorage PRIMERO — antes de que React re-renderice
     localStorage.setItem('token', data.token)
     if (data.user) localStorage.setItem('user', JSON.stringify(data.user))
+    setToken(data.token)
+    setUser(data.user ?? null)
     return data
   }, [])
 
   const register = useCallback(async (username, email, password, confirmPassword) => {
     const data = await registerService(username, email, password, confirmPassword)
-    setToken(data.token)
-    setUser(data.user ?? null)
     localStorage.setItem('token', data.token)
     if (data.user) localStorage.setItem('user', JSON.stringify(data.user))
+    setToken(data.token)
+    setUser(data.user ?? null)
     return data
   }, [])
 
   const logout = useCallback(() => {
-    setToken(null)
-    setUser(null)
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    setToken(null)
+    setUser(null)
   }, [])
 
   const isAuthenticated = Boolean(token)
-
   const isAdmin = user?.roles?.includes('ROLE_ADMIN') ?? false
 
   return (

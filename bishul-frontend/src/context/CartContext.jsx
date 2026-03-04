@@ -11,14 +11,15 @@ import {
 const CartContext = createContext(null)
 
 export const CartProvider = ({ children }) => {
-  const { isAuthenticated } = useAuth()
+  // Usamos token directamente — no isAuthenticated — para evitar race condition
+  const { token } = useAuth()
 
   const [cart, setCart] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const fetchCart = useCallback(async () => {
-    if (!isAuthenticated) {
+  const fetchCart = useCallback(async (currentToken) => {
+    if (!currentToken) {
       setCart(null)
       return
     }
@@ -28,58 +29,44 @@ export const CartProvider = ({ children }) => {
       const data = await getCart()
       setCart(data)
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al cargar el carrito')
+      if (err.response?.status !== 403) {
+        setError(err.response?.data?.message || 'Error al cargar el carrito')
+      }
     } finally {
       setLoading(false)
     }
-  }, [isAuthenticated])
+  }, [])
 
-  // Recargar el carrito cuando cambia el estado de autenticación
+  // Se dispara cuando cambia el token — garantiza que ya está en localStorage
   useEffect(() => {
-    fetchCart()
-  }, [fetchCart])
+    fetchCart(token)
+  }, [token, fetchCart])
 
   const cartCount = cart?.cartItems?.reduce((acc, item) => acc + item.quantity, 0) ?? 0
 
   const handleAddItem = useCallback(async (product) => {
-    try {
-      const updated = await addItem({
-        productId: product.id,
-        productName: product.name,
-        productPrice: product.price,
-        quantity: 1,
-      })
-      setCart(updated)
-    } catch (err) {
-      throw err
-    }
+    const updated = await addItem({
+      productId: product.id,
+      productName: product.name,
+      productPrice: product.price,
+      quantity: 1,
+    })
+    setCart(updated)
   }, [])
 
   const handleUpdateItem = useCallback(async (item) => {
-    try {
-      const updated = await updateItem(item)
-      setCart(updated)
-    } catch (err) {
-      throw err
-    }
+    const updated = await updateItem(item)
+    setCart(updated)
   }, [])
 
   const handleRemoveItem = useCallback(async (cartItemId) => {
-    try {
-      const updated = await removeItem(cartItemId)
-      setCart(updated)
-    } catch (err) {
-      throw err
-    }
+    const updated = await removeItem(cartItemId)
+    setCart(updated)
   }, [])
 
   const handleClearCart = useCallback(async () => {
-    try {
-      const updated = await clearCart()
-      setCart(updated)
-    } catch (err) {
-      throw err
-    }
+    const updated = await clearCart()
+    setCart(updated)
   }, [])
 
   return (
@@ -93,7 +80,7 @@ export const CartProvider = ({ children }) => {
         handleUpdateItem,
         handleRemoveItem,
         handleClearCart,
-        refetch: fetchCart,
+        refetch: () => fetchCart(token),
       }}
     >
       {children}

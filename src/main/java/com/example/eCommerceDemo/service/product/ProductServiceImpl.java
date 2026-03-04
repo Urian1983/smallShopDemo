@@ -6,11 +6,15 @@ import com.example.eCommerceDemo.exceptions.NotFoundException;
 import com.example.eCommerceDemo.mapper.product.ProductMapperImpl;
 import com.example.eCommerceDemo.model.Product;
 import com.example.eCommerceDemo.repository.ProductRepository;
-import org.springframework.security.access.prepost.PreAuthorize;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
+@Transactional
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -23,21 +27,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
-    public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO)
-    {
+    public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
+        log.info("Creating new product with name: {}", productRequestDTO.getName());
+
         Product newProduct = productMapper.toEntity(productRequestDTO);
         newProduct.setSlug(productRequestDTO.getName().toLowerCase().replace(" ", "-"));
         productRepository.save(newProduct);
 
+        log.info("Product created successfully with ID: {} and Slug: {}", newProduct.getId(), newProduct.getSlug());
         return productMapper.toDTO(newProduct);
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponseDTO updateProduct(ProductRequestDTO productRequestDTO, Long id) {
+        log.info("Updating product ID: {}", id);
+
         Product productToUpdate = productRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> {
+                    log.error("Update failed: Product ID {} not found", id);
+                    return new NotFoundException();
+                });
 
         Product tempProduct = productMapper.toEntity(productRequestDTO);
 
@@ -52,34 +61,46 @@ public class ProductServiceImpl implements ProductService {
         productToUpdate.setStock(tempProduct.getStock());
 
         productRepository.save(productToUpdate);
+        log.info("Product ID: {} updated successfully", id);
         return productMapper.toDTO(productToUpdate);
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public void delete(Long id) {
-        if(!productRepository.existsById(id))
-        {
+        log.info("Attempting to delete product ID: {}", id);
+
+        if(!productRepository.existsById(id)) {
+            log.error("Delete failed: Product ID {} does not exist", id);
             throw new NotFoundException();
         }
 
         productRepository.deleteById(id);
+        log.info("Product ID: {} deleted successfully", id);
     }
 
     @Override
     public ProductResponseDTO getById(Long id) {
+        log.debug("Fetching product details for ID: {}", id);
+
         Product product = productRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> {
+                    log.error("Product lookup failed: ID {} not found", id);
+                    return new NotFoundException();
+                });
+
         return productMapper.toDTO(product);
     }
 
     @Override
     public List<ProductResponseDTO> getAllProducts() {
+        log.info("Retrieving all products");
 
         List<ProductResponseDTO> products = new ArrayList<>();
         for(Product product : productRepository.findAll()){
             products.add(productMapper.toDTO(product));
         }
+
+        log.debug("Found {} products in database", products.size());
         return products;
     }
 }

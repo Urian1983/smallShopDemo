@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
+@Slf4j
 @NoArgsConstructor
 @Service
 public class JwtService {
@@ -26,13 +28,16 @@ public class JwtService {
     private long expiration;
 
     public String generateToken(User user) {
-        return Jwts.builder()
-                .setSubject(user.getEmail()) // email como username
+        log.info("Generating JWT token for user: {}", user.getEmail());
+        String token = Jwts.builder()
+                .setSubject(user.getEmail())
                 .claim("roles", user.getRoles().stream().map(Enum::name).toList())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+        log.debug("Token successfully generated.");
+        return token;
     }
 
     public String extractUsername(String token) {
@@ -41,11 +46,19 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        boolean isValid = (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        if (!isValid) {
+            log.warn("Invalid token validation attempt for user: {}", userDetails.getUsername());
+        }
+        return isValid;
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        boolean expired = extractExpiration(token).before(new Date());
+        if (expired) {
+            log.warn("JWT token has expired");
+        }
+        return expired;
     }
 
     private Date extractExpiration(String token) {
@@ -58,11 +71,16 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            log.error("Failed to extract claims from token: {}", e.getMessage());
+            throw e;
+        }
     }
 
     private Key getSigningKey() {
