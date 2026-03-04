@@ -205,6 +205,23 @@
   gap: var(--space-2);
 }
 
+.editBtn {
+  font-size: var(--fs-xs);
+  color: var(--color-terracotta);
+  background: none;
+  border: 1px solid var(--color-terracotta);
+  border-radius: var(--radius-sm);
+  padding: 3px var(--space-2);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.editBtn:hover {
+  background-color: var(--color-terracotta);
+  color: var(--color-white);
+}
+
 .deleteBtn {
   font-size: var(--fs-xs);
   color: var(--color-error);

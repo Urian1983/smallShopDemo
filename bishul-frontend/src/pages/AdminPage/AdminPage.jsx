@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { getAllProducts, createProduct, deleteProduct } from '../../services/productService'
+import { getAllProducts, createProduct, updateProduct, deleteProduct } from '../../services/productService'
 import { getAllOrders, updateOrderStatus } from '../../services/orderService'
 import Button from '../../atoms/Button'
 import Spinner from '../../atoms/Spinner'
@@ -9,12 +9,23 @@ import Badge from '../../atoms/Badge'
 import styles from './AdminPage.module.css'
 
 const TABS = ['Productos', 'Pedidos']
-
 const STATUS_OPTIONS = ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED']
 
 const emptyProduct = {
-  name: '', description: '', price: '', stock: '', brand: '', category: '', imageUrl: ''
+  sku: '', name: '', brand: '', category: '',
+  price: '', stock: '', imageUrl: '', shortDescription: '', description: ''
 }
+
+const FORM_FIELDS = [
+  { key: 'sku',              label: 'SKU',              placeholder: 'M019' },
+  { key: 'name',             label: 'Nombre',           placeholder: 'Tahini artesano' },
+  { key: 'brand',            label: 'Marca',            placeholder: 'Al Amir' },
+  { key: 'category',         label: 'Categoría',        placeholder: 'Salsas' },
+  { key: 'price',            label: 'Precio (€)',       placeholder: '9.99', type: 'number' },
+  { key: 'stock',            label: 'Stock',            placeholder: '50',   type: 'number' },
+  { key: 'imageUrl',         label: 'URL imagen',       placeholder: 'https://...' },
+  { key: 'shortDescription', label: 'Descripción corta', placeholder: 'Tahini cremoso y natural' },
+]
 
 const AdminPage = () => {
   const { isAdmin } = useAuth()
@@ -25,7 +36,10 @@ const AdminPage = () => {
   const [products, setProducts] = useState([])
   const [prodLoading, setProdLoading] = useState(false)
   const [prodError, setProdError] = useState('')
+
+  // Form (create / edit)
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState(null)   // null = crear, id = editar
   const [form, setForm] = useState(emptyProduct)
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState('')
@@ -36,55 +50,66 @@ const AdminPage = () => {
   const [ordError, setOrdError] = useState('')
 
   useEffect(() => {
-    if (!isAdmin) {
-      navigate('/')
-      return
-    }
+    if (!isAdmin) { navigate('/'); return }
     if (activeTab === 'Productos') fetchProducts()
     else fetchOrders()
   }, [activeTab, isAdmin])
 
   const fetchProducts = async () => {
-    setProdLoading(true)
-    setProdError('')
-    try {
-      const data = await getAllProducts()
-      setProducts(data)
-    } catch {
-      setProdError('Error al cargar productos')
-    } finally {
-      setProdLoading(false)
-    }
+    setProdLoading(true); setProdError('')
+    try { setProducts(await getAllProducts()) }
+    catch { setProdError('Error al cargar productos') }
+    finally { setProdLoading(false) }
   }
 
   const fetchOrders = async () => {
-    setOrdLoading(true)
-    setOrdError('')
-    try {
-      const data = await getAllOrders()
-      setOrders(data)
-    } catch {
-      setOrdError('Error al cargar pedidos')
-    } finally {
-      setOrdLoading(false)
-    }
+    setOrdLoading(true); setOrdError('')
+    try { setOrders(await getAllOrders()) }
+    catch { setOrdError('Error al cargar pedidos') }
+    finally { setOrdLoading(false) }
   }
 
-  const handleCreateProduct = async (e) => {
-    e.preventDefault()
-    setFormLoading(true)
+  // Abre el formulario para EDITAR un producto existente
+  const handleEdit = (product) => {
+    setEditingId(product.id)
+    setForm({
+      sku:              product.sku              ?? '',
+      name:             product.name             ?? '',
+      brand:            product.brand            ?? '',
+      category:         product.category         ?? '',
+      price:            product.price            ?? '',
+      stock:            product.stock            ?? '',
+      imageUrl:         product.imageUrl         ?? '',
+      shortDescription: product.shortDescription ?? '',
+      description:      product.description      ?? '',
+    })
     setFormError('')
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleCancelForm = () => {
+    setShowForm(false)
+    setEditingId(null)
+    setForm(emptyProduct)
+    setFormError('')
+  }
+
+  const handleSubmitForm = async (e) => {
+    e.preventDefault()
+    setFormLoading(true); setFormError('')
+    const payload = { ...form, price: parseFloat(form.price), stock: parseInt(form.stock) }
     try {
-      await createProduct({
-        ...form,
-        price: parseFloat(form.price),
-        stock: parseInt(form.stock),
-      })
-      setForm(emptyProduct)
-      setShowForm(false)
-      fetchProducts()
+      if (editingId) {
+        const updated = await updateProduct(editingId, payload)
+        setProducts((prev) => prev.map((p) => p.id === editingId ? updated : p))
+      } else {
+        await createProduct(payload)
+        await fetchProducts()
+      }
+      handleCancelForm()
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Error al crear el producto')
+      setFormError(err.response?.data?.message || 'Error al guardar el producto')
     } finally {
       setFormLoading(false)
     }
@@ -103,9 +128,7 @@ const AdminPage = () => {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       await updateOrderStatus(orderId, newStatus)
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
-      )
+      setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status: newStatus } : o))
     } catch {
       alert('Error al actualizar el estado')
     }
@@ -132,30 +155,29 @@ const AdminPage = () => {
         ))}
       </div>
 
-      {/* PRODUCTOS */}
+      {/* ── PRODUCTOS ── */}
       {activeTab === 'Productos' && (
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <span className={styles.count}>{products.length} productos</span>
-            <Button variant="primary" size="sm" onClick={() => setShowForm(!showForm)}>
+            <Button
+              variant={showForm ? 'ghost' : 'primary'}
+              size="sm"
+              onClick={showForm ? handleCancelForm : () => { setEditingId(null); setForm(emptyProduct); setShowForm(true) }}
+            >
               {showForm ? 'Cancelar' : '+ Nuevo producto'}
             </Button>
           </div>
 
-          {/* Formulario nuevo producto */}
+          {/* Formulario crear / editar */}
           {showForm && (
-            <form className={styles.form} onSubmit={handleCreateProduct}>
-              <h3 className={styles.formTitle}>Nuevo producto</h3>
+            <form className={styles.form} onSubmit={handleSubmitForm}>
+              <h3 className={styles.formTitle}>
+                {editingId ? '✏️ Editar producto' : '➕ Nuevo producto'}
+              </h3>
               {formError && <p className={styles.formError}>⚠️ {formError}</p>}
               <div className={styles.formGrid}>
-                {[
-                  { key: 'name', label: 'Nombre', placeholder: 'Tahini artesano' },
-                  { key: 'brand', label: 'Marca', placeholder: 'Al Amir' },
-                  { key: 'category', label: 'Categoría', placeholder: 'Salsas' },
-                  { key: 'price', label: 'Precio (€)', placeholder: '9.99', type: 'number' },
-                  { key: 'stock', label: 'Stock', placeholder: '50', type: 'number' },
-                  { key: 'imageUrl', label: 'URL imagen', placeholder: 'https://...' },
-                ].map(({ key, label, placeholder, type = 'text' }) => (
+                {FORM_FIELDS.map(({ key, label, placeholder, type = 'text' }) => (
                   <div key={key} className={styles.field}>
                     <label className={styles.label}>{label}</label>
                     <input
@@ -172,7 +194,7 @@ const AdminPage = () => {
                 <label className={styles.label}>Descripción</label>
                 <textarea
                   className={styles.textarea}
-                  placeholder="Descripción del producto..."
+                  placeholder="Descripción completa del producto..."
                   rows={3}
                   value={form.description}
                   onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
@@ -180,13 +202,16 @@ const AdminPage = () => {
               </div>
               <div className={styles.formActions}>
                 <Button type="submit" variant="primary" loading={formLoading}>
-                  Crear producto
+                  {editingId ? 'Guardar cambios' : 'Crear producto'}
+                </Button>
+                <Button type="button" variant="ghost" onClick={handleCancelForm}>
+                  Cancelar
                 </Button>
               </div>
             </form>
           )}
 
-          {/* Tabla de productos */}
+          {/* Tabla */}
           {prodLoading ? (
             <div className={styles.centered}><Spinner size="lg" /></div>
           ) : prodError ? (
@@ -209,6 +234,9 @@ const AdminPage = () => {
                   <span className={styles.cell}>{Number(p.price).toFixed(2)} €</span>
                   <span className={styles.cell}>{p.stock}</span>
                   <span className={styles.actions}>
+                    <button className={styles.editBtn} onClick={() => handleEdit(p)}>
+                      Editar
+                    </button>
                     <button className={styles.deleteBtn} onClick={() => handleDelete(p.id)}>
                       Eliminar
                     </button>
@@ -220,13 +248,12 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* PEDIDOS */}
+      {/* ── PEDIDOS ── */}
       {activeTab === 'Pedidos' && (
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <span className={styles.count}>{orders.length} pedidos</span>
           </div>
-
           {ordLoading ? (
             <div className={styles.centered}><Spinner size="lg" /></div>
           ) : ordError ? (

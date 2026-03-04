@@ -28,7 +28,6 @@ public class ProductRequestDTO {
     @Schema(description = "Brand or manufacturer", example = "Nike")
     private String brand;
 
-    @NotBlank
     @Schema(description = "Full URL for the product image", example = "https://images.com/products/tshirt.jpg")
     private String imageUrl;
 
