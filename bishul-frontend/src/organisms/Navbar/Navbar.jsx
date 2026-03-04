@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Button from '../../atoms/Button'
@@ -10,7 +10,20 @@ import styles from './Navbar.module.css'
  * @param {number} cartCount — número de ítems en el carrito
  */
 const Navbar = ({ cartCount = 0 }) => {
-  const { isAuthenticated, isAdmin, user, logout } = useAuth()
+  const { isAuthenticated, isAdmin, user, token, logout } = useAuth()
+
+  // Nombre display: user.name → email del JWT → 'Usuario'
+  const displayName = useMemo(() => {
+    if (user?.name) return user.name
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      return payload.sub ?? 'Usuario'
+    } catch {
+      return 'Usuario'
+    }
+  }, [user, token])
+
+  const displayInitial = displayName[0]?.toUpperCase() ?? '?'
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -77,10 +90,8 @@ const Navbar = ({ cartCount = 0 }) => {
 
               <div className={styles.userMenu}>
                 <button className={styles.userBtn} aria-label="Menú de usuario">
-                  <span className={styles.userAvatar}>
-                    {user?.name?.[0]?.toUpperCase() ?? '?'}
-                  </span>
-                  <span className={styles.userName}>{user?.name ?? 'Usuario'}</span>
+                  <span className={styles.userAvatar}>{displayInitial}</span>
+                  <span className={styles.userName}>{displayName}</span>
                 </button>
                 <div className={styles.dropdown}>
                   <Link to="/profile" className={styles.dropdownItem}>

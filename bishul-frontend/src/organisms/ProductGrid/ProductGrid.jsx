@@ -1,47 +1,32 @@
 import { useState, useMemo } from 'react'
 import ProductCard from '../../molecules/ProductCard'
-import Spinner from '../../atoms/Spinner'
+import ProductCardSkeleton from '../../molecules/ProductCardSkeleton'
 import styles from './ProductGrid.module.css'
 
-/**
- * Organism: ProductGrid
- * Muestra el catálogo de productos con filtro por categoría y búsqueda.
- *
- * @param {Array}    products    — lista de ProductResponseDTO
- * @param {boolean}  loading
- * @param {string}   error
- * @param {Function} onAddToCart — (product) => void
- * @param {Function} onProductClick — (product) => void
- */
 const ProductGrid = ({ products = [], loading, error, onAddToCart, onProductClick }) => {
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('Todos')
+  const [sortBy, setSortBy] = useState('default')
 
-  // Extraer categorías únicas del catálogo
   const categories = useMemo(() => {
-    const cats = [...new Set(products.map((p) => p.category))].sort()
+    const cats = [...new Set(products.map((p) => p.category).filter(Boolean))].sort()
     return ['Todos', ...cats]
   }, [products])
 
-  // Filtrar por búsqueda y categoría
   const filtered = useMemo(() => {
-    return products.filter((p) => {
+    let result = products.filter((p) => {
       const matchesCategory = activeCategory === 'Todos' || p.category === activeCategory
       const matchesSearch =
         search.trim() === '' ||
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.name?.toLowerCase().includes(search.toLowerCase()) ||
         p.brand?.toLowerCase().includes(search.toLowerCase())
       return matchesCategory && matchesSearch
     })
-  }, [products, search, activeCategory])
-
-  if (loading) {
-    return (
-      <div className={styles.centered}>
-        <Spinner size="lg" label="Cargando productos..." />
-      </div>
-    )
-  }
+    if (sortBy === 'price-asc') result = [...result].sort((a, b) => a.price - b.price)
+    else if (sortBy === 'price-desc') result = [...result].sort((a, b) => b.price - a.price)
+    else if (sortBy === 'name') result = [...result].sort((a, b) => a.name.localeCompare(b.name))
+    return result
+  }, [products, search, activeCategory, sortBy])
 
   if (error) {
     return (
@@ -53,8 +38,6 @@ const ProductGrid = ({ products = [], loading, error, onAddToCart, onProductClic
 
   return (
     <section className={styles.section} aria-label="Catálogo de productos">
-
-      {/* Controles: búsqueda + categorías */}
       <div className={styles.controls}>
         <div className={styles.searchWrapper}>
           <span className={styles.searchIcon} aria-hidden="true">🔍</span>
@@ -66,55 +49,58 @@ const ProductGrid = ({ products = [], loading, error, onAddToCart, onProductClic
             className={styles.searchInput}
             aria-label="Buscar productos"
           />
+          {search && (
+            <button className={styles.clearSearch} onClick={() => setSearch('')} aria-label="Limpiar búsqueda">✕</button>
+          )}
         </div>
-
-        <div className={styles.categories} role="tablist" aria-label="Filtrar por categoría">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              role="tab"
-              aria-selected={activeCategory === cat}
-              className={[
-                styles.categoryBtn,
-                activeCategory === cat ? styles.categoryActive : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              onClick={() => setActiveCategory(cat)}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        <select
+          className={styles.sortSelect}
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          aria-label="Ordenar productos"
+        >
+          <option value="default">Ordenar</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="name">Nombre A-Z</option>
+        </select>
       </div>
 
-      {/* Contador de resultados */}
-      <p className={styles.resultCount} aria-live="polite">
-        {filtered.length === 0
-          ? 'No se encontraron productos'
-          : `${filtered.length} ${filtered.length === 1 ? 'producto' : 'productos'}`}
-      </p>
+      <div className={styles.categories} role="tablist" aria-label="Filtrar por categoría">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            role="tab"
+            aria-selected={activeCategory === cat}
+            className={[styles.categoryBtn, activeCategory === cat ? styles.categoryActive : ''].filter(Boolean).join(' ')}
+            onClick={() => setActiveCategory(cat)}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
 
-      {/* Grid de productos */}
-      {filtered.length > 0 ? (
+      {!loading && (
+        <p className={styles.resultCount} aria-live="polite">
+          {filtered.length === 0 ? 'No se encontraron productos' : `${filtered.length} ${filtered.length === 1 ? 'producto' : 'productos'}`}
+        </p>
+      )}
+
+      {loading ? (
+        <div className={styles.grid}>
+          {Array.from({ length: 8 }).map((_, i) => (<ProductCardSkeleton key={i} />))}
+        </div>
+      ) : filtered.length > 0 ? (
         <div className={styles.grid}>
           {filtered.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={onAddToCart}
-              onClick={() => onProductClick?.(product)}
-            />
+            <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} onClick={() => onProductClick?.(product)} />
           ))}
         </div>
       ) : (
         <div className={styles.empty}>
           <span className={styles.emptyIcon}>🍽️</span>
           <p className={styles.emptyText}>No hay platos en esta categoría</p>
-          <button
-            className={styles.resetBtn}
-            onClick={() => { setSearch(''); setActiveCategory('Todos') }}
-          >
+          <button className={styles.resetBtn} onClick={() => { setSearch(''); setActiveCategory('Todos'); setSortBy('default') }}>
             Ver todos los productos
           </button>
         </div>

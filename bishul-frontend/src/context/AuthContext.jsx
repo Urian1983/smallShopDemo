@@ -3,6 +3,16 @@ import { login as loginService, register as registerService } from '../services/
 
 const AuthContext = createContext(null)
 
+// Decodifica el payload del JWT sin librería externa
+const decodeToken = (token) => {
+  try {
+    const payload = token.split('.')[1]
+    return JSON.parse(atob(payload))
+  } catch {
+    return null
+  }
+}
+
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem('token') || null)
   const [user, setUser] = useState(() => {
@@ -16,7 +26,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(async (email, password) => {
     const data = await loginService(email, password)
-    // Guardar en localStorage PRIMERO — antes de que React re-renderice
     localStorage.setItem('token', data.token)
     if (data.user) localStorage.setItem('user', JSON.stringify(data.user))
     setToken(data.token)
@@ -41,7 +50,11 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const isAuthenticated = Boolean(token)
-  const isAdmin = user?.roles?.includes('ROLE_ADMIN') ?? false
+
+  // Leer roles del JWT directamente — user puede ser null si el backend no lo devuelve
+  const tokenPayload = token ? decodeToken(token) : null
+  const roles = tokenPayload?.roles ?? user?.roles ?? []
+  const isAdmin = roles.includes('ADMIN') || roles.includes('ROLE_ADMIN')
 
   return (
     <AuthContext.Provider value={{ token, user, isAuthenticated, isAdmin, login, register, logout }}>

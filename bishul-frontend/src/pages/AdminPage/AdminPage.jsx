@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { getProducts, createProduct, deleteProduct } from '../../services/productService'
+import { getAllProducts, createProduct, deleteProduct } from '../../services/productService'
 import { getAllOrders, updateOrderStatus } from '../../services/orderService'
 import Button from '../../atoms/Button'
 import Spinner from '../../atoms/Spinner'
@@ -10,7 +10,7 @@ import styles from './AdminPage.module.css'
 
 const TABS = ['Productos', 'Pedidos']
 
-const STATUS_OPTIONS = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED']
+const STATUS_OPTIONS = ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED']
 
 const emptyProduct = {
   name: '', description: '', price: '', stock: '', brand: '', category: '', imageUrl: ''
@@ -48,7 +48,7 @@ const AdminPage = () => {
     setProdLoading(true)
     setProdError('')
     try {
-      const data = await getProducts()
+      const data = await getAllProducts()
       setProducts(data)
     } catch {
       setProdError('Error al cargar productos')

@@ -31,7 +31,13 @@ public class ProductServiceImpl implements ProductService {
         log.info("Creating new product with name: {}", productRequestDTO.getName());
 
         Product newProduct = productMapper.toEntity(productRequestDTO);
-        newProduct.setSlug(productRequestDTO.getName().toLowerCase().replace(" ", "-"));
+        newProduct.setSlug(
+                java.text.Normalizer.normalize(productRequestDTO.getName(), java.text.Normalizer.Form.NFD)
+                        .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                        .toLowerCase()
+                        .replaceAll("[^a-z0-9]+", "-")
+                        .replaceAll("(^-|-$)", "")
+        );
         productRepository.save(newProduct);
 
         log.info("Product created successfully with ID: {} and Slug: {}", newProduct.getId(), newProduct.getSlug());
