@@ -11,7 +11,7 @@ Este proyecto es **personal** y sirve como **ejemplo para portafolio**, mostrand
 ## Tecnologías utilizadas
 
 - **Backend:** Java 21, Spring Boot 3.5.11, Spring Security  
-- **Frontend:** JavaScript, CSS  
+- **Frontend:** JavaScript, CSS (React)   
 - **Base de datos:** MySQL  
 - **Logging:** Log4Js  
 - **Contenedores (opcional):** Docker y Docker Compose  
